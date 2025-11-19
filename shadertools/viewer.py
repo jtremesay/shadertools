@@ -34,7 +34,9 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from pathlib import Path
+from typing import Optional
 
+from .math import Vec2
 from .window import Window
 
 
@@ -50,6 +52,29 @@ class ShaderViewer(Window):
         self.vao = self.ctx.vertex_array(self.program, [])
         self.vao.vertices = 3
         self.frame = 0
+
+        self.mouse_click_start: Optional[Vec2] = None
+        self.mouse_click_current: Optional[Vec2] = None
+
+    def on_mouse_press_event(self, x, y, button):
+        if button == 1:  # Left mouse button
+            self.mouse_click_start = Vec2(x, y)
+            self.mouse_click_current = self.mouse_click_start
+
+        return super().on_mouse_press_event(x, y, button)
+
+    def on_mouse_release_event(self, x, y, button):
+        if button == 1:  # Left mouse button
+            self.mouse_click_start = None
+            self.mouse_click_current = None
+
+        return super().on_mouse_release_event(x, y, button)
+
+    def on_mouse_drag_event(self, x, y, dx, dy):
+        if self.mouse_click_start is not None:
+            self.mouse_click_current = Vec2(x, y)
+
+        return super().on_mouse_drag_event(x, y, dx, dy)
 
     def on_render(self, time, frame_time):
         self.ctx.clear()
@@ -94,7 +119,16 @@ class ShaderViewer(Window):
             pass
 
         try:
-            self.program["iMouse"] = (0.0, 0.0, 0.0, 0.0)
+            self.program["iMouse"] = (
+                (
+                    self.mouse_click_current.x,
+                    self.mouse_click_current.y,
+                    self.mouse_click_start.x,
+                    self.mouse_click_start.y,
+                )
+                if self.mouse_click_current and self.mouse_click_start
+                else (0.0, 0.0, 0.0, 0.0)
+            )
         except KeyError:
             pass
 
