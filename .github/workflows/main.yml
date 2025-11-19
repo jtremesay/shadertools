@@ -53,8 +53,10 @@ jobs:
 
     - name: Install uv
       uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
 
-    - name: Install xmllint
+    - name: Install system dependencies
       run: sudo apt install -y libx11-dev
 
     - name: Install the project
