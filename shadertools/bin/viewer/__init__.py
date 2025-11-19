@@ -20,7 +20,7 @@ class ShaderViewer(mglw.WindowConfig):
     title = "Resource Loading with ModernGL Window"
     resizable = False
     gl_version = (3, 3)
-    window_size = (800, 800)
+    window_size = (1024, 1024)
     aspect_ratio = 1.0
     resource_dir = os.path.normpath(os.path.join(__file__, "../../../data"))
 
