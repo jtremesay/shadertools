@@ -35,39 +35,11 @@
 
 from dataclasses import dataclass, field
 
-from .math import Vec3
-
-
-@dataclass
-class Node:
-    pass
-
-
-@dataclass
-class Material:
-    color: Vec3
-    specular: float = 0.0
-
-
-@dataclass
-class Sphere(Node):
-    center: Vec3
-    radius: float
-    material: Material
-
-
-@dataclass
-class Camera:
-    position: Vec3 = field(default_factory=lambda: Vec3(0, 0, 0))
-    view_port: Vec3 = field(default_factory=lambda: Vec3(1, 1, 1))
+from .camera import Camera
+from .geometry import Sphere
 
 
 @dataclass
 class Scene:
     spheres: list[Sphere] = field(default_factory=list)
     camera: Camera = field(default_factory=Camera)
-
-
-@dataclass
-class SdfUnion(Node):
-    nodes: list[Node] = field(default_factory=list)

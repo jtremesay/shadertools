@@ -33,32 +33,12 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from dataclasses import dataclass
 
-from shadertools.camera import Camera
-from shadertools.geometry import Sphere
-from shadertools.material import Material
-from shadertools.math import Vec3
-from shadertools.scene import Scene
+from .math import Vec3
 
 
-def create_scene() -> Scene:
-    return Scene(
-        camera=Camera(),
-        spheres=[
-            Sphere(
-                center=Vec3(0, -1, 3),
-                radius=1,
-                material=Material(color=Vec3(1, 0, 0)),
-            ),
-            Sphere(
-                center=Vec3(3, 0, 4),
-                radius=1,
-                material=Material(color=Vec3(0, 1, 0)),
-            ),
-            Sphere(
-                center=Vec3(-2, 0, 4),
-                radius=1,
-                material=Material(color=Vec3(0, 0, 1)),
-            ),
-        ],
-    )
+@dataclass
+class Material:
+    color: Vec3
+    specular: float = 0.0
