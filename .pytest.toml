@@ -1,0 +1,10 @@
+[pytest]
+addopts = [
+    "-n=auto", 
+    "--import-mode=importlib", 
+    "--cov=shadertools", 
+    "--cov=tests", 
+    "--cov-report=term-missing", 
+    "--cov-report=xml"
+]
+testpaths = ["tests"]

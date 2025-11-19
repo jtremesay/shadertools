@@ -9,6 +9,10 @@ wheels/
 # Virtual environments
 .venv
 
+# Tests
+.coverage
+coverage.xml
+
 # Shaders
 output*.fs
 output*.vs
