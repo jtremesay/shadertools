@@ -10,5 +10,6 @@ wheels/
 .venv
 
 # Shaders
-output_*.fs
-output_*.vs
+output*.fs
+output*.vs
+output*.glsl
