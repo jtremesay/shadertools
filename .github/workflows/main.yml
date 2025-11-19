@@ -70,5 +70,5 @@ jobs:
       if: ${{ !cancelled() }}
       with:
         name: pytest
-        # path: coverage.xml
+        path: test-report.xml
         # reporter: jest-junit
