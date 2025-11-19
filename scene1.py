@@ -33,6 +33,7 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 import sys
 from pathlib import Path
 
@@ -43,31 +44,38 @@ from shadertools.compiler import (
 from shadertools.scene import Camera, Material, Scene, Sphere, Vector3
 from shadertools.viewer import ShaderViewer
 
-scene = Scene(
-    camera=Camera(),
-    spheres=[
-        Sphere(
-            center=Vector3(0, -1, 3),
-            radius=1,
-            material=Material(color=Vector3(1, 0, 0)),
-        ),
-        Sphere(
-            center=Vector3(3, 0, 4), radius=1, material=Material(color=Vector3(0, 1, 0))
-        ),
-        Sphere(
-            center=Vector3(-2, 0, 4),
-            radius=1,
-            material=Material(color=Vector3(0, 0, 1)),
-        ),
-    ],
-)
 
-print(scene)
-shadertoy_shader = compile_scene_to_shadertoy_shader(scene)
-Path("output_shadertoy_shader.fs").write_text(shadertoy_shader)
+def create_scene() -> Scene:
+    return Scene(
+        camera=Camera(),
+        spheres=[
+            Sphere(
+                center=Vector3(0, -1, 3),
+                radius=1,
+                material=Material(color=Vector3(1, 0, 0)),
+            ),
+            Sphere(
+                center=Vector3(3, 0, 4),
+                radius=1,
+                material=Material(color=Vector3(0, 1, 0)),
+            ),
+            Sphere(
+                center=Vector3(-2, 0, 4),
+                radius=1,
+                material=Material(color=Vector3(0, 0, 1)),
+            ),
+        ],
+    )
 
-glsl_shader = compile_shadertoy_shader_to_glsl_shader(shadertoy_shader)
-Path("output_glsl_shader.fs").write_text(glsl_shader)
 
-sys.argv.append("--shader-file=output_glsl_shader.fs")
-ShaderViewer.run()
+if __name__ == "__main__":
+    scene = create_scene()
+    print(scene)
+    shadertoy_shader = compile_scene_to_shadertoy_shader(scene)
+    Path("output_shadertoy_shader.fs").write_text(shadertoy_shader)
+
+    glsl_shader = compile_shadertoy_shader_to_glsl_shader(shadertoy_shader)
+    Path("output_glsl_shader.fs").write_text(glsl_shader)
+
+    sys.argv.append("--shader-file=output_glsl_shader.fs")
+    ShaderViewer.run()

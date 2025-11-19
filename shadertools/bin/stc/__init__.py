@@ -32,10 +32,13 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import importlib
 from argparse import ArgumentParser
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Optional
+
+from ...compiler import compile_scene_to_shadertoy_shader
 
 
 def main(args: Optional[Sequence[str]] = None) -> None:
@@ -55,3 +58,16 @@ def main(args: Optional[Sequence[str]] = None) -> None:
         help="Input scene",
     )
     parsed_args = parser.parse_args(args)
+
+    # Import the scene module
+    scene_module_name = parsed_args.input.stem
+    spec = importlib.util.spec_from_file_location(scene_module_name, parsed_args.input)
+    scene_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(scene_module)  # type: ignore
+
+    # Create the scene and compile the shader
+    scene = scene_module.create_scene()
+    shader = compile_scene_to_shadertoy_shader(scene)
+
+    # Write the shader to the output file
+    parsed_args.output.write_text(shader)
