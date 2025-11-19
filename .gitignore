@@ -12,6 +12,7 @@ wheels/
 # Tests
 .coverage
 coverage.xml
+test-report.xml
 
 # Shaders
 output*.fs
