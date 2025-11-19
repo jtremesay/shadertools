@@ -4,7 +4,6 @@ from shadertools.compiler import (
     glsl_vec3,
 )
 from shadertools.math import Vec3
-from shadertools.scene import Scene
 
 
 class TestFilters:
@@ -15,13 +14,13 @@ class TestFilters:
 
 
 class TestSTCompiler:
-    def test_compile_scene_to_shadertoy_shader(self):
-        scene = Scene()
-        compile_scene_to_shadertoy_shader(scene)
+    def test_compile_scene(self, scene, ref_st_shader):
+        st_shader = compile_scene_to_shadertoy_shader(scene)
+        assert st_shader == ref_st_shader
 
 
 class TestGLSLCompiler:
-    def test_full_compilation_pipeline(self):
-        scene = Scene()
-        shadertoy_shader = compile_scene_to_shadertoy_shader(scene)
-        compile_shadertoy_shader_to_glsl_shader(shadertoy_shader)
+    def test_compile_scene(self, scene, ref_glsl_shader):
+        st_shader = compile_scene_to_shadertoy_shader(scene)
+        glsl_shader = compile_shadertoy_shader_to_glsl_shader(st_shader)
+        assert glsl_shader == ref_glsl_shader
