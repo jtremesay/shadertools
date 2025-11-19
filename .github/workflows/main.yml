@@ -72,3 +72,9 @@ jobs:
         name: ShaderTools Tests
         path: test-report.xml
         reporter: jest-junit
+
+    - name: Coverage Report 
+      uses: orgoro/coverage@v3.2
+      with:
+          coverageFile: coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
