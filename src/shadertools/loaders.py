@@ -6,8 +6,9 @@ def load_scene(path: Path):
     """Load a scene from a Python file."""
     scene_module_name = path.stem
     spec = spec_from_file_location(scene_module_name, path)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Could not load module from {path}")
+    assert spec is not None and spec.loader is not None, (
+        f"Could not load module from {path}"
+    )
     scene_module = module_from_spec(spec)
     spec.loader.exec_module(scene_module)
 
