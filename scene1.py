@@ -40,18 +40,26 @@ from shadertools.compiler import (
     compile_scene_to_shadertoy_shader,
     compile_shadertoy_shader_to_glsl_shader,
 )
-from shadertools.scene import Camera, Material, Scene, SdfUnion, Sphere
+from shadertools.scene import Camera, Material, Scene, Sphere, Vector3
 from shadertools.viewer import ShaderViewer
 
 scene = Scene(
     camera=Camera(),
-    root=SdfUnion(
-        nodes=[
-            Sphere(center=(0, -1, 3), radius=1, material=Material(color=(1, 0, 0))),
-            Sphere(center=(2, 0, 4), radius=1, material=Material(color=(0, 1, 0))),
-            Sphere(center=(-2, 0, 4), radius=1, material=Material(color=(0, 0, 1))),
-        ]
-    ),
+    spheres=[
+        Sphere(
+            center=Vector3(0, -1, 3),
+            radius=1,
+            material=Material(color=Vector3(1, 0, 0)),
+        ),
+        Sphere(
+            center=Vector3(3, 0, 4), radius=1, material=Material(color=Vector3(0, 1, 0))
+        ),
+        Sphere(
+            center=Vector3(-2, 0, 4),
+            radius=1,
+            material=Material(color=Vector3(0, 0, 1)),
+        ),
+    ],
 )
 
 print(scene)

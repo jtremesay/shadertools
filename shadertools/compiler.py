@@ -35,7 +35,16 @@
 
 from jinja2 import Environment, PackageLoader
 
+from .scene import Vector3
+
 env = Environment(loader=PackageLoader("shadertools"))
+
+
+def glsl_vec3(v: Vector3) -> str:
+    return f"vec3({v.x}, {v.y}, {v.z})"
+
+
+env.filters["glsl_vec3"] = glsl_vec3
 
 
 def compile_scene_to_shadertoy_shader(scene) -> str:
