@@ -69,6 +69,6 @@ jobs:
       uses: dorny/test-reporter@v2
       if: ${{ !cancelled() }}
       with:
-        name: pytest
+        name: ShaderTools Tests
         path: test-report.xml
         reporter: jest-junit
