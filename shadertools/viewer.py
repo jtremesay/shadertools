@@ -34,41 +34,158 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
-from argparse import ArgumentParser
+import random
 from pathlib import Path
 
-import moderngl_window as mglw
+import moderngl_window
+from moderngl_window.conf import settings
+from moderngl_window.timers.clock import Timer
 
 
-class ShaderViewer(mglw.WindowConfig):
-    title = "Resource Loading with ModernGL Window"
+class Window:
+    """
+    Custom setup using a class.
+    We create the window, main loop and register events.
+    """
+
+    window_class = "moderngl_window.context.pyglet.Window"
+    title = "ShaderTools Window"
     resizable = False
     gl_version = (3, 3)
-    window_size = (1024, 1024)
-    aspect_ratio = 1.0
+    window_size = (512, 512)
+    aspect_ratio = window_size[0] / window_size[1]
     resource_dir = os.path.normpath(os.path.join(__file__, "../data"))
 
-    @classmethod
-    def add_arguments(cls: type["WindowConfig"], parser: ArgumentParser) -> None:
-        parser.add_argument(
-            "--shader-file",
-            type=Path,
-            default="shader.fs",
-            help="Path to the fragment shader file.",
-        )
+    def __init__(self):
+        # Configure to use pyglet window
+        settings.WINDOW["class"] = self.window_class
+        settings.WINDOW["title"] = self.title
+        settings.WINDOW["resizable"] = self.resizable
+        settings.WINDOW["gl_version"] = self.gl_version
+        settings.WINDOW["size"] = self.window_size
+        settings.WINDOW["aspect_ratio"] = self.aspect_ratio
 
-    def __init__(self, **kwargs):
+        self.wnd = moderngl_window.create_window_from_settings()
+        self.ctx = self.wnd.ctx
+
+        # register event methods
+        self.wnd.resize_func = self.on_resize
+        self.wnd.iconify_func = self.on_iconify
+        self.wnd.key_event_func = self.on_key_event
+        self.wnd.mouse_position_event_func = self.on_mouse_position_event
+        self.wnd.mouse_drag_event_func = self.on_mouse_drag_event
+        self.wnd.mouse_scroll_event_func = self.on_mouse_scroll_event
+        self.wnd.mouse_press_event_func = self.on_mouse_press_event
+        self.wnd.mouse_release_event_func = self.on_mouse_release_event
+        self.wnd.unicode_char_entered_func = self.on_unicode_char_entered
+        self.wnd.close_func = self.on_close
+
+    def on_render(self, time, frame_time):
+        pass
+
+    def run(self):
+        timer = Timer()
+        timer.start()
+
+        while not self.wnd.is_closing:
+            self.wnd.clear()
+            time, frame_time = timer.next_frame()
+            self.on_render(time, frame_time)
+            self.wnd.swap_buffers()
+
+        self.wnd.destroy()
+
+    def on_resize(self, width: int, height: int):
+        print("Window was resized. buffer size is {} x {}".format(width, height))
+
+    def on_iconify(self, iconify: bool):
+        """Window hide/minimize and restore"""
+        print("Window was iconified:", iconify)
+
+    def on_key_event(self, key, action, modifiers):
+        keys = self.wnd.keys
+
+        # Key presses
+        if action == keys.ACTION_PRESS:
+            if key == keys.SPACE:
+                print("SPACE key was pressed")
+
+            # Using modifiers (shift and ctrl)
+
+            if key == keys.Z and modifiers.shift:
+                print("Shift + Z was pressed")
+
+            if key == keys.Z and modifiers.ctrl:
+                print("ctrl + Z was pressed")
+
+        # Key releases
+        elif action == self.wnd.keys.ACTION_RELEASE:
+            if key == keys.SPACE:
+                print("SPACE key was released")
+
+        # Move the window around with AWSD
+        if action == keys.ACTION_PRESS:
+            if key == keys.A:
+                self.wnd.position = self.wnd.position[0] - 10, self.wnd.position[1]
+            if key == keys.D:
+                self.wnd.position = self.wnd.position[0] + 10, self.wnd.position[1]
+            if key == keys.W:
+                self.wnd.position = self.wnd.position[0], self.wnd.position[1] - 10
+            if key == keys.S:
+                self.wnd.position = self.wnd.position[0], self.wnd.position[1] + 10
+
+            # toggle cursor
+            if key == keys.C:
+                self.wnd.cursor = not self.wnd.cursor
+
+            # Shuffle window tittle
+            if key == keys.T:
+                title = list(self.wnd.title)
+                random.shuffle(title)
+                self.wnd.title = "".join(title)
+
+            # Toggle mouse exclusivity
+            if key == keys.M:
+                self.wnd.mouse_exclusivity = not self.wnd.mouse_exclusivity
+
+    def on_mouse_position_event(self, x, y, dx, dy):
+        print("Mouse position pos={} {} delta={} {}".format(x, y, dx, dy))
+
+    def on_mouse_drag_event(self, x, y, dx, dy):
+        print("Mouse drag pos={} {} delta={} {}".format(x, y, dx, dy))
+
+    def on_mouse_scroll_event(self, x_offset, y_offset):
+        print("mouse_scroll_event", x_offset, y_offset)
+
+    def on_mouse_press_event(self, x, y, button):
+        print("Mouse button {} pressed at {}, {}".format(button, x, y))
+        print("Mouse states:", self.wnd.mouse_states)
+
+    def on_mouse_release_event(self, x: int, y: int, button: int):
+        print("Mouse button {} released at {}, {}".format(button, x, y))
+        print("Mouse states:", self.wnd.mouse_states)
+
+    def on_unicode_char_entered(self, char):
+        print("unicode_char_entered:", char)
+
+    def on_close(self):
+        print("Window was closed")
+
+
+class ShaderViewer(Window):
+    title = "Resource Loading with ModernGL Window"
+
+    def __init__(self, shader: str, **kwargs):
         super().__init__(**kwargs)
         self.program = self.ctx.program(
             vertex_shader=(Path(self.resource_dir) / "shaders" / "main.vs").read_text(),
-            fragment_shader=self.argv.shader_file.read_text(),
+            fragment_shader=shader,
         )
         self.vao = self.ctx.vertex_array(self.program, [])
         self.vao.vertices = 3
         self.frame = 0
 
     def on_render(self, time, frame_time):
-        print(time, frame_time)
         self.ctx.clear()
 
         # Theses uniforms are optional in the shader, and may not be present

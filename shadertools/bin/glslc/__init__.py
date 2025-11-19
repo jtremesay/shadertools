@@ -32,7 +32,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-import importlib
+
 from argparse import ArgumentParser
 from collections.abc import Sequence
 from pathlib import Path
@@ -42,6 +42,7 @@ from ...compiler import (
     compile_scene_to_shadertoy_shader,
     compile_shadertoy_shader_to_glsl_shader,
 )
+from ...loaders import load_scene
 
 
 def main(args: Optional[Sequence[str]] = None) -> None:
@@ -62,14 +63,8 @@ def main(args: Optional[Sequence[str]] = None) -> None:
     )
     parsed_args = parser.parse_args(args)
 
-    # Import the scene module
-    scene_module_name = parsed_args.input.stem
-    spec = importlib.util.spec_from_file_location(scene_module_name, parsed_args.input)
-    scene_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(scene_module)  # type: ignore
-
     # Create the scene and compile the shader
-    scene = scene_module.create_scene()
+    scene = load_scene(parsed_args.input)
     shadertoy_shader = compile_scene_to_shadertoy_shader(scene)
     shader = compile_shadertoy_shader_to_glsl_shader(shadertoy_shader)
 

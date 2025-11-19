@@ -32,36 +32,54 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 from argparse import ArgumentParser
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Optional
 
-from ...compiler import compile_scene_to_shadertoy_shader
+from ...compiler import (
+    compile_scene_to_shadertoy_shader,
+    compile_shadertoy_shader_to_glsl_shader,
+)
 from ...loaders import load_scene
+from ...viewer import ShaderViewer
 
 
 def main(args: Optional[Sequence[str]] = None) -> None:
-    parser = ArgumentParser(description="ShaderTools Compiler for Shadertoy")
-    parser.add_argument(
-        "-o",
-        "--output",
-        type=Path,
-        default=Path("output.st.fs"),
-        help="Output shader file",
-    )
-    parser.add_argument(
-        "input",
+    parser = ArgumentParser(description="ShaderTools Viewer")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-s",
+        "--scene",
         type=Path,
         default=Path("scene.py"),
-        nargs="?",
-        help="Input scene",
+        help="Scene file to load",
+    )
+    group.add_argument(
+        "--st",
+        type=Path,
+        help="Shadertoy shader file to load",
+    )
+    group.add_argument(
+        "--glsl",
+        type=Path,
+        help="GLSL shader file to load",
     )
     parsed_args = parser.parse_args(args)
+    print(parsed_args)
 
-    # Create the scene and compile the shader
-    scene = load_scene(parsed_args.input)
-    shader = compile_scene_to_shadertoy_shader(scene)
+    if not parsed_args.glsl:
+        if not parsed_args.st:
+            if not parsed_args.scene:
+                raise RuntimeError("No scene or shader file provided")
 
-    # Write the shader to the output file
-    parsed_args.output.write_text(shader)
+            scene = load_scene(parsed_args.scene)
+            shadertoy_shader = compile_scene_to_shadertoy_shader(scene)
+        else:
+            shadertoy_shader = parsed_args.st.read_text()
+        shader = compile_shadertoy_shader_to_glsl_shader(shadertoy_shader)
+    else:
+        shader = parsed_args.glsl.read_text()
+
+    ShaderViewer(shader).run()
