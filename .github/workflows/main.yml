@@ -69,5 +69,6 @@ jobs:
       uses: dorny/test-reporter@v2
       if: ${{ !cancelled() }}
       with:
+        name: pytest
         path: coverage.xml
         reporter: jest-junit
