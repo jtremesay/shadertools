@@ -35,12 +35,7 @@
 
 from dataclasses import dataclass, field
 
-
-@dataclass
-class Vector3:
-    x: float
-    y: float
-    z: float
+from .math import Vec3
 
 
 @dataclass
@@ -50,21 +45,21 @@ class Node:
 
 @dataclass
 class Material:
-    color: Vector3
+    color: Vec3
     specular: float = 0.0
 
 
 @dataclass
 class Sphere(Node):
-    center: Vector3
+    center: Vec3
     radius: float
     material: Material
 
 
 @dataclass
 class Camera:
-    position: Vector3 = field(default_factory=lambda: Vector3(0, 0, 0))
-    view_port: Vector3 = field(default_factory=lambda: Vector3(1, 1, 1))
+    position: Vec3 = field(default_factory=lambda: Vec3(0, 0, 0))
+    view_port: Vec3 = field(default_factory=lambda: Vec3(1, 1, 1))
 
 
 @dataclass

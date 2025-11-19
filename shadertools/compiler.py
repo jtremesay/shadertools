@@ -35,12 +35,12 @@
 
 from jinja2 import Environment, PackageLoader
 
-from .scene import Vector3
+from .math import Vec3
 
 env = Environment(loader=PackageLoader("shadertools"))
 
 
-def glsl_vec3(v: Vector3) -> str:
+def glsl_vec3(v: Vec3) -> str:
     return f"vec3({v.x}, {v.y}, {v.z})"
 
 

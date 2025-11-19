@@ -34,7 +34,8 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from shadertools.scene import Camera, Material, Scene, Sphere, Vector3
+from shadertools.math import Vec3
+from shadertools.scene import Camera, Material, Scene, Sphere
 
 
 def create_scene() -> Scene:
@@ -42,19 +43,19 @@ def create_scene() -> Scene:
         camera=Camera(),
         spheres=[
             Sphere(
-                center=Vector3(0, -1, 3),
+                center=Vec3(0, -1, 3),
                 radius=1,
-                material=Material(color=Vector3(1, 0, 0)),
+                material=Material(color=Vec3(1, 0, 0)),
             ),
             Sphere(
-                center=Vector3(3, 0, 4),
+                center=Vec3(3, 0, 4),
                 radius=1,
-                material=Material(color=Vector3(0, 1, 0)),
+                material=Material(color=Vec3(0, 1, 0)),
             ),
             Sphere(
-                center=Vector3(-2, 0, 4),
+                center=Vec3(-2, 0, 4),
                 radius=1,
-                material=Material(color=Vector3(0, 0, 1)),
+                material=Material(color=Vec3(0, 0, 1)),
             ),
         ],
     )
