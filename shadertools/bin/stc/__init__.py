@@ -32,8 +32,26 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from argparse import ArgumentParser
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Optional
 
 
-def main():
-    """shadertools.bin.stc package initializer."""
-    pass
+def main(args: Optional[Sequence[str]] = None) -> None:
+    parser = ArgumentParser(description="ShaderTools Compiler for Shadertoy")
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        default=Path("output.st.fs"),
+        help="Output shader file",
+    )
+    parser.add_argument(
+        "input",
+        type=Path,
+        default=Path("scene.py"),
+        nargs="?",
+        help="Input scene",
+    )
+    parsed_args = parser.parse_args(args)
