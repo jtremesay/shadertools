@@ -4,9 +4,10 @@ env = Environment(loader=PackageLoader("shadertools"))
 
 
 def compile_scene_to_shadertoy_shader(scene) -> str:
-    return ""
+    tpl = env.get_template("shaders/shadertoy.fs")
+    return tpl.render(scene=scene)
 
 
 def compile_shadertoy_shader_to_glsl_shader(shadertoy_shader: str) -> str:
-    f_shader_tpl = env.get_template("shaders/main.fs")
-    return f_shader_tpl.render(user_shader=shadertoy_shader)
+    tpl = env.get_template("shaders/main.fs")
+    return tpl.render(user_shader=shadertoy_shader)
