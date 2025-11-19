@@ -1,6 +1,19 @@
 import os
+from pathlib import Path
 
 import moderngl_window as mglw
+from jinja2 import Environment, PackageLoader
+
+env = Environment(loader=PackageLoader("shadertools"))
+
+
+def get_f_user_shader():
+    return Path("shader.fs").read_text()
+
+
+def get_f_shader(f_user_shader):
+    f_shader_tpl = env.get_template("shaders/main.fs")
+    return f_shader_tpl.render(user_shader=f_user_shader)
 
 
 class ShaderViewer(mglw.WindowConfig):
@@ -14,13 +27,11 @@ class ShaderViewer(mglw.WindowConfig):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.program = self.load_program(
-            vertex_shader="shaders/main.vs",
-            fragment_shader="shaders/main.fs",
+        f_shader = get_f_shader(get_f_user_shader())
+        v_shader = (Path(self.resource_dir) / "shaders" / "main.vs").read_text()
+        self.program = self.ctx.program(
+            vertex_shader=v_shader, fragment_shader=f_shader
         )
-
-        self.texture = self.load_texture_2d("colormaps/fractal.png")
-        self.sampler = self.ctx.sampler(texture=self.texture)
         self.vao = self.ctx.vertex_array(self.program, [])
         self.vao.vertices = 3
         self.frame = 0
@@ -28,10 +39,21 @@ class ShaderViewer(mglw.WindowConfig):
     def on_render(self, time, frame_time):
         print(time, frame_time)
         self.ctx.clear()
-        self.program["iResolution"] = [self.window_size[0], self.window_size[1], 0.0]
-        self.program["iTime"] = time
 
         # Theses uniforms are optional in the shader, and may not be present
+        try:
+            self.program["iResolution"] = [
+                self.window_size[0],
+                self.window_size[1],
+                0.0,
+            ]
+        except KeyError:
+            pass
+
+        try:
+            self.program["iTime"] = time
+        except KeyError:
+            pass
         try:
             self.program["iTimeDelta"] = frame_time
         except KeyError:
@@ -62,7 +84,6 @@ class ShaderViewer(mglw.WindowConfig):
         except KeyError:
             pass
 
-        self.sampler.use()
         self.vao.render()
         self.frame += 1
 
