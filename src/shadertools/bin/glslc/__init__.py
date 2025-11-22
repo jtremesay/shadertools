@@ -39,8 +39,8 @@ from pathlib import Path
 from typing import Optional
 
 from ...compiler import (
+    compile_scene_to_glsl_shader,
     compile_scene_to_shadertoy_shader,
-    compile_shadertoy_shader_to_glsl_shader,
 )
 from ...loaders import load_scene
 
@@ -65,8 +65,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
 
     # Create the scene and compile the shader
     scene = load_scene(parsed_args.input)
-    shadertoy_shader = compile_scene_to_shadertoy_shader(scene)
-    shader = compile_shadertoy_shader_to_glsl_shader(shadertoy_shader)
+    shader = compile_scene_to_glsl_shader(scene)
 
     # Write the shader to the output file
     parsed_args.output.write_text(shader)

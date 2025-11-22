@@ -36,6 +36,7 @@
 from jinja2 import Environment, PackageLoader
 
 from .math import Vec3
+from .scene import Scene
 
 env = Environment(loader=PackageLoader("shadertools"))
 
@@ -47,11 +48,11 @@ def glsl_vec3(v: Vec3) -> str:
 env.filters["glsl_vec3"] = glsl_vec3
 
 
-def compile_scene_to_shadertoy_shader(scene) -> str:
-    tpl = env.get_template("shaders/shadertoy.fs")
+def compile_scene_to_shadertoy_shader(scene: Scene) -> str:
+    tpl = env.get_template("shaders/st.fs")
     return tpl.render(scene=scene)
 
 
-def compile_shadertoy_shader_to_glsl_shader(shadertoy_shader: str) -> str:
-    tpl = env.get_template("shaders/main.fs")
-    return tpl.render(user_shader=shadertoy_shader)
+def compile_scene_to_glsl_shader(scene: Scene) -> str:
+    tpl = env.get_template("shaders/glsl.fs")
+    return tpl.render(scene=scene)
