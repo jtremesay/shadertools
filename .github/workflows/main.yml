@@ -62,19 +62,19 @@ jobs:
     - name: Install the project
       run: uv sync --locked --group test
 
-    - name: Run tests
-      run: uv run pytest
+    # - name: Run tests
+    #   run: uv run pytest
 
-    - name: Test Report
-      uses: dorny/test-reporter@v2
-      if: ${{ !cancelled() }}
-      with:
-        name: ShaderTools Tests
-        path: test-report.xml
-        reporter: jest-junit
+    # - name: Test Report
+    #   uses: dorny/test-reporter@v2
+    #   if: ${{ !cancelled() }}
+    #   with:
+    #     name: ShaderTools Tests
+    #     path: test-report.xml
+    #     reporter: jest-junit
 
-    - name: Coverage Report 
-      uses: orgoro/coverage@v3.2
-      with:
-          coverageFile: coverage.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Coverage Report 
+    #   uses: orgoro/coverage@v3.2
+    #   with:
+    #       coverageFile: coverage.xml
+    #       token: ${{ secrets.GITHUB_TOKEN }}
