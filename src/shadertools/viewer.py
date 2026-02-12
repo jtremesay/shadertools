@@ -49,7 +49,7 @@ Example:
 from pathlib import Path
 from typing import Any, Optional
 
-from .math import Vec2
+from .hll.math import Vec2
 from .window import Window
 
 

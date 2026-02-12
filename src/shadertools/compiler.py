@@ -53,8 +53,8 @@ Example:
 
 from jinja2 import Environment, PackageLoader
 
-from .math import Vec3
-from .scene import Scene
+from .hll.math import Vec3
+from .hll.scene import Scene
 
 env = Environment(loader=PackageLoader("shadertools"))
 

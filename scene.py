@@ -34,11 +34,11 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from shadertools.camera import Camera
-from shadertools.geometry import Sphere
-from shadertools.material import Material
-from shadertools.math import Vec3
-from shadertools.scene import Scene
+from shadertools.hll.camera import Camera
+from shadertools.hll.geometry import Sphere
+from shadertools.hll.material import Material
+from shadertools.hll.math import Vec3
+from shadertools.hll.scene import Scene
 
 
 def create_scene() -> Scene:
