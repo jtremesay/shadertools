@@ -32,6 +32,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""Geometric primitives for 3D scenes.
+
+This module defines geometric shapes that can be rendered using signed distance
+functions (SDFs). All geometry inherits from the Node base class.
+"""
 
 from dataclasses import dataclass
 
@@ -41,11 +46,34 @@ from .math import Vec3
 
 @dataclass
 class Node:
+    """Base class for all geometric nodes in a scene.
+
+    This is an abstract base class that all geometric primitives inherit from.
+    Currently serves as a marker class for type hierarchy.
+    """
+
     pass
 
 
 @dataclass
 class Sphere(Node):
+    """A sphere primitive defined by center position and radius.
+
+    Spheres are rendered using signed distance functions (SDFs) in the shader.
+
+    Attributes:
+        center: The 3D position of the sphere's center point.
+        radius: The radius of the sphere (must be positive).
+        material: The material properties defining the sphere's appearance.
+
+    Example:
+        >>> from shadertools.math import Vec3
+        >>> from shadertools.material import Material
+        >>>
+        >>> mat = Material(color=Vec3(1.0, 0.0, 0.0), specular=0.8)
+        >>> sphere = Sphere(center=Vec3(0, 0, -5), radius=1.5, material=mat)
+    """
+
     center: Vec3
     radius: float
     material: Material

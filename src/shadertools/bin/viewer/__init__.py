@@ -32,6 +32,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""Interactive shader viewer CLI.
+
+Command-line tool for viewing and interacting with ShaderTools scene files
+in real-time using an OpenGL window.
+"""
 
 from argparse import ArgumentParser
 from collections.abc import Sequence
@@ -44,6 +49,23 @@ from ...viewer import ShaderViewer
 
 
 def main(args: Optional[Sequence[str]] = None) -> None:
+    """Launch interactive viewer for a scene file.
+
+    Command-line interface for viewing ShaderTools scenes in an interactive
+    OpenGL window. The viewer provides real-time rendering with mouse interaction.
+
+    Args:
+        args: Command-line arguments to parse. If None (default), uses sys.argv.
+
+    Example:
+        From command line:
+            $ python -m shadertools.bin.viewer scene.py
+            $ python -m shadertools.bin.viewer --help
+
+        From Python:
+            >>> from shadertools.bin.viewer import main
+            >>> main(["scene.py"])  # Opens interactive viewer window
+    """
     parser = ArgumentParser(description="ShaderTools Viewer")
     group = parser.add_mutually_exclusive_group()
     group.add_argument(

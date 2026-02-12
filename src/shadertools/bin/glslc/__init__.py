@@ -32,6 +32,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""GLSL shader compiler CLI.
+
+Command-line tool for compiling ShaderTools scene files to GLSL fragment shaders.
+The generated shaders can be used with OpenGL/ModernGL applications.
+"""
 
 from argparse import ArgumentParser
 from collections.abc import Sequence
@@ -46,6 +51,23 @@ from ...loaders import load_scene
 
 
 def main(args: Optional[Sequence[str]] = None) -> None:
+    """Compile a scene file to GLSL fragment shader.
+
+    Command-line interface for compiling ShaderTools scene descriptions to
+    standalone GLSL fragment shaders suitable for use with OpenGL.
+
+    Args:
+        args: Command-line arguments to parse. If None (default), uses sys.argv.
+
+    Example:
+        From command line:
+            $ python -m shadertools.bin.glslc scene.py -o output.fs
+            $ python -m shadertools.bin.glslc --help
+
+        From Python:
+            >>> from shadertools.bin.glslc import main
+            >>> main(["scene.py", "-o", "shader.fs"])
+    """
     parser = ArgumentParser(description="ShaderTools Compiler for GLSL")
     parser.add_argument(
         "-o",

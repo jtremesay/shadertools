@@ -32,6 +32,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""Scene composition and management.
+
+This module defines the Scene class which aggregates all elements needed to render
+a 3D scene, including geometric objects and camera configuration.
+"""
 
 from dataclasses import dataclass, field
 
@@ -41,5 +46,36 @@ from .geometry import Sphere
 
 @dataclass
 class Scene:
+    """A complete 3D scene containing objects and a camera.
+
+    The Scene class serves as a container for all renderable elements and view
+    configuration. Scenes can be compiled to GLSL or Shadertoy shaders for rendering.
+
+    Attributes:
+        spheres: List of Sphere objects in the scene. Defaults to empty list.
+        camera: Camera configuration for rendering the scene. Defaults to a
+            camera at the origin.
+
+    Example:
+        >>> from shadertools.math import Vec3
+        >>> from shadertools.material import Material
+        >>> from shadertools.geometry import Sphere
+        >>> from shadertools.camera import Camera
+        >>>
+        >>> # Create materials
+        >>> red_mat = Material(color=Vec3(1.0, 0.0, 0.0), specular=0.8)
+        >>> blue_mat = Material(color=Vec3(0.0, 0.2, 0.8), specular=0.5)
+        >>>
+        >>> # Create spheres
+        >>> sphere1 = Sphere(center=Vec3(-2, 0, -5), radius=1.0, material=red_mat)
+        >>> sphere2 = Sphere(center=Vec3(2, 0, -5), radius=1.5, material=blue_mat)
+        >>>
+        >>> # Create scene
+        >>> scene = Scene(
+        ...     spheres=[sphere1, sphere2],
+        ...     camera=Camera(position=Vec3(0, 1, 0))
+        ... )
+    """
+
     spheres: list[Sphere] = field(default_factory=list)
     camera: Camera = field(default_factory=Camera)

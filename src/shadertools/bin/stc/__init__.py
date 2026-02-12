@@ -32,6 +32,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""Shadertoy compiler CLI.
+
+Command-line tool for compiling ShaderTools scene files to Shadertoy-compatible
+GLSL fragment shaders that can be pasted directly into Shadertoy.com.
+"""
+
 from argparse import ArgumentParser
 from collections.abc import Sequence
 from pathlib import Path
@@ -42,6 +48,23 @@ from ...loaders import load_scene
 
 
 def main(args: Optional[Sequence[str]] = None) -> None:
+    """Compile a scene file to Shadertoy-compatible shader.
+
+    Command-line interface for compiling ShaderTools scene descriptions to
+    Shadertoy-compatible GLSL fragment shaders.
+
+    Args:
+        args: Command-line arguments to parse. If None (default), uses sys.argv.
+
+    Example:
+        From command line:
+            $ python -m shadertools.bin.stc scene.py -o output.st.fs
+            $ python -m shadertools.bin.stc --help
+
+        From Python:
+            >>> from shadertools.bin.stc import main
+            >>> main(["scene.py", "-o", "shadertoy.fs"])
+    """
     parser = ArgumentParser(description="ShaderTools Compiler for Shadertoy")
     parser.add_argument(
         "-o",

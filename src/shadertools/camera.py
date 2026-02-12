@@ -32,6 +32,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""Camera configuration for scene rendering.
+
+This module defines the camera setup used to render 3D scenes, including
+the camera position and viewport dimensions.
+"""
 
 from dataclasses import dataclass, field
 
@@ -40,5 +45,25 @@ from .math import Vec3
 
 @dataclass
 class Camera:
+    """Camera configuration for rendering a 3D scene.
+
+    The camera defines the viewpoint from which the scene is rendered, including
+    the position in 3D space and the viewport dimensions.
+
+    Attributes:
+        position: The 3D position of the camera in world space.
+            Defaults to origin (0, 0, 0).
+        view_port: The viewport dimensions as a Vec3.
+            Typically (width, height, aspect_ratio) or similar.
+            Defaults to (1, 1, 1).
+
+    Example:
+        >>> # Camera at origin looking down negative z-axis
+        >>> cam = Camera()
+        >>>
+        >>> # Camera positioned behind and above the scene
+        >>> cam = Camera(position=Vec3(0, 2, 5), view_port=Vec3(16, 9, 16/9))
+    """
+
     position: Vec3 = field(default_factory=lambda: Vec3(0, 0, 0))
     view_port: Vec3 = field(default_factory=lambda: Vec3(1, 1, 1))
