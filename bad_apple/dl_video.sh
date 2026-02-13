@@ -1,6 +1,7 @@
+#!/bin/sh
 # ANTI-CAPITALIST SOFTWARE LICENSE (v 1.4)
 #
-# Copyright © 2025 Jonathan Tremesayques
+# Copyright © 2026 Jonathan Tremesayques
 #
 # This is anti-capitalist software, released for free use by individuals and
 # organizations that do not operate by capitalist principles.
@@ -32,48 +33,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""Scene loading utilities.
+set -ex
 
-This module provides functionality to load scene definitions from Python files.
-Scene files should define a `create_scene()` function that returns a Scene object.
-"""
-
-from importlib.util import module_from_spec, spec_from_file_location
-from pathlib import Path
-
-from .hll.scene import Scene
-
-
-def load_scene(path: Path) -> Scene:
-    """Load a scene from a Python file.
-
-    Dynamically imports a Python module from the given path and calls its
-    `create_scene()` function to obtain a Scene object.
-
-    Args:
-        path: Path to a Python file containing a `create_scene()` function.
-
-    Returns:
-        A Scene object returned by the module's `create_scene()` function.
-
-    Raises:
-        AssertionError: If the module cannot be loaded from the given path.
-        AttributeError: If the module doesn't have a `create_scene()` function.
-
-    Example:
-        >>> from pathlib import Path
-        >>> scene = load_scene(Path("my_scene.py"))
-        >>> # The scene.py file should contain:
-        >>> # def create_scene():
-        >>> #     return Scene(...)
-    """
-    scene_module_name = path.stem
-    spec = spec_from_file_location(scene_module_name, path)
-    assert spec is not None and spec.loader is not None, (
-        f"Could not load module from {path}"
-    )
-    scene_module = module_from_spec(spec)
-    spec.loader.exec_module(scene_module)
-
-    # Create the scene and compile the shader
-    return scene_module.create_scene()
+yt-dlp --remote-components ejs:github -f 243 'https://www.youtube.com/watch?v=FtutLA63Cp8' -o video.webm

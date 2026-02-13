@@ -1,6 +1,6 @@
 # ANTI-CAPITALIST SOFTWARE LICENSE (v 1.4)
 #
-# Copyright © 2025 Jonathan Tremesayques
+# Copyright © 2026 Jonathan Tremesayques
 #
 # This is anti-capitalist software, released for free use by individuals and
 # organizations that do not operate by capitalist principles.
@@ -32,35 +32,26 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""Material definitions for 3D objects.
+from argparse import ArgumentParser
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Optional
 
-This module defines material properties that control how objects appear when rendered,
-including color and reflective properties.
-"""
-
-from dataclasses import dataclass
-
-from .math import Vec3
+from shadertools.video import extract_pixels_from_capture
 
 
-@dataclass
-class Material:
-    """Material properties for rendering objects.
+def main(argv: Optional[Sequence[str]] = None) -> None:
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-i", "--input", default="video.webm", type=Path, help="input file"
+    )
+    parser.add_argument("-o", "--output", type=Path, help="output file")
 
-    Defines the visual appearance of a 3D object through color and specular
-    (shininess) properties.
+    args = parser.parse_args(argv)
+    input_file = args.input
+    output_file = args.output
+    if output_file is None:
+        output_file = input_file.parent / (input_file.stem + "_pixels.parquet")
 
-    Attributes:
-        color: RGB color as a Vec3 with components in range [0.0, 1.0].
-        specular: Specular reflection intensity (shininess), default 0.0.
-            Higher values create shinier surfaces (typical range: 0.0 to 1.0).
-
-    Example:
-        >>> # Matte red material
-        >>> red_matte = Material(color=Vec3(1.0, 0.0, 0.0), specular=0.0)
-        >>> # Shiny blue material
-        >>> blue_shiny = Material(color=Vec3(0.0, 0.2, 0.8), specular=0.9)
-    """
-
-    color: Vec3
-    specular: float = 0.0
+    df = extract_pixels_from_capture(input_file)
+    df.write_parquet(output_file)

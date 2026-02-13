@@ -1,170 +1,157 @@
-# GitHub Copilot Instructions for ShaderTools
+# Shadertools Project - AI Agent Instructions
 
 ## Project Overview
 
-ShaderTools is a Python library for creating 3D scenes and compiling them into GLSL or Shadertoy-compatible fragment shaders using signed distance functions (SDFs).
+Neural video compression for Shadertoy using PyTorch → GLSL code generation. Compresses Bad Apple video (1.08 GB) into a tiny neural network (~17 KB) that runs entirely in GLSL shader code, with NO custom textures (Shadertoy constraint).
 
-## Code Style & Standards
+**Core Concept**: Train `f(frame, x, y) → pixel_value` then embed the NN weights directly in GLSL code for real-time playback.
 
-### Python Version
-- Target Python 3.13+
-- Use modern Python features where appropriate
+## Architecture & Data Flow
 
-### Type Annotations
-- **Always** include type hints for all function parameters and return values
-- Use `from typing import Optional, Any` etc. where needed
-- Use modern type syntax: `list[str]` not `List[str]`, `dict[str, int]` not `Dict[str, int]`
-- Use `from collections.abc import Sequence` for flexible sequence types
-
-### Documentation
-- **All modules** must have a module-level docstring
-- **All classes** must have a class docstring
-- **All public functions/methods** must have docstrings
-- Use **Google-style docstrings** consistently:
-  ```python
-  def function(param1: str, param2: int) -> bool:
-      """Brief description.
-
-      Longer description if needed.
-
-      Args:
-          param1: Description of param1.
-          param2: Description of param2.
-
-      Returns:
-          Description of return value.
-
-      Example:
-          >>> function("test", 42)
-          True
-      """
-  ```
-- Include usage examples in module and class docstrings where helpful
-
-### Data Classes
-- Prefer `@dataclass` for data structures
-- Use `field(default_factory=...)` for mutable defaults
-- Always include type annotations on dataclass fields
-- Add class docstrings explaining purpose and usage
-
-### Imports
-- Organize imports: standard library, third-party, local imports
-- Use absolute imports within the package: `from .math import Vec3`
-
-## Architecture & Patterns
-
-### Core Concepts
-- **Vec2/Vec3**: Basic vector math primitives
-- **Material**: Visual appearance properties (color, specular)
-- **Geometry**: SDF-based primitives (Sphere, etc.) inheriting from Node base class
-- **Scene**: Container for geometry and camera
-- **Compiler**: Jinja2-based shader generation
-- **Viewer**: Interactive OpenGL window with Shadertoy-compatible uniforms
-
-### Shader Generation
-- Use Jinja2 templates in `src/shadertools/templates/`
-- Custom filters like `glsl_vec3` for converting Python objects to GLSL syntax
-- Support both GLSL and Shadertoy output formats
-
-### Event Handling
-- Window and viewer use event handler methods: `on_render`, `on_key_event`, `on_mouse_*`
-- Always include type hints for event handler parameters
-- Event handlers should call `super()` when appropriate
-
-## License Header
-
-All new Python files must include the ANTI-CAPITALIST SOFTWARE LICENSE header:
-
-```python
-# ANTI-CAPITALIST SOFTWARE LICENSE (v 1.4)
-#
-# Copyright © 2025 Jonathan Tremesayques
-#
-# This is anti-capitalist software, released for free use by individuals and
-# organizations that do not operate by capitalist principles.
-#
-# Permission is hereby granted, free of charge, to any person or organization
-# (the "User") obtaining a copy of this software and associated documentation
-# files (the "Software"), to use, copy, modify, merge, distribute, and/or sell
-# copies of the Software, subject to the following conditions:
-#
-#   1. The above copyright notice and this permission notice shall be included
-#      in all copies or modified versions of the Software.
-#
-#   2. The User is one of the following:
-#     a. An individual person, laboring for themselves
-#     b. A non-profit organization
-#     c. An educational institution
-#     d. An organization that seeks shared profit for all of its members, and
-#        allows non-members to set the cost of their labor
-#
-#   3. If the User is an organization with owners, then all owners are workers
-#     and all workers are owners with equal equity and/or equal vote.
-#
-#   4. If the User is an organization, then the User is not law enforcement or
-#      military, or working for or under either.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT EXPRESS OR IMPLIED WARRANTY OF ANY
-# KIND, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+video.webm (480×360, 6572 frames)
+    ↓ [extract_pixels.py → video.py]
+video_pixels.parquet (1.08 GB Polars DataFrame)
+    ↓ [train_nn.py → nn.py: TinyVideoNet]
+nn_weights.npz + metadata.json (4353 params, ~17 KB)
+    ↓ [generate_shaders.py + Jinja2 templates]
+shadertoy_buffer_a.fs + shadertoy_image.fs
+    ↓ [Manual upload to Shadertoy.com]
+Multi-pass shader (Buffer A stores weights, Image runs NN inference)
 ```
 
-## Dependencies
+## Critical Constraints
 
-### Required Packages
-- **jinja2**: Template engine for shader code generation
-- **moderngl-window**: OpenGL window management and context creation
+1. **Shadertoy 65K character limit**: Total GLSL code must fit in ~65K chars
+2. **No custom textures**: Must embed all data (NN weights) as GLSL `const float[]` arrays
+3. **Multi-pass architecture**: Buffer A stores weights as texture, Image reads via `iChannel0`
+4. **Normalization**: All inputs/outputs normalized to [0, 1] for both PyTorch and GLSL
 
-### Key External APIs
-- **moderngl_window**: Window creation, event handling, OpenGL context
-- **Jinja2**: Template loading, rendering, custom filters
+## Key Components
 
-## Testing & CLI
+### 1. Video Extraction (`src/shadertools/video.py`)
+- Uses OpenCV to read video frames
+- Converts to grayscale, extracts all pixels
+- Pre-allocates NumPy arrays for vectorized operations (fast!)
+- Outputs Polars DataFrame with columns: `frame`, `x`, `y`, `pixel_value`
 
-### Command-Line Tools
-- `glslc`: Compile scenes to GLSL shaders
-- `stc`: Compile scenes to Shadertoy shaders
-- `viewer`: Interactive scene viewer
+### 2. Neural Network (`src/shadertools/nn.py`)
 
-### CLI Function Signature
-- CLI `main()` functions use `Optional[Sequence[str]]` for testability
-- Always include helpful argparse descriptions and help text
+**TinyVideoNet Architecture**: `[3] → [32] → [64] → [32] → [1]`
+- Input: `(frame_norm, x_norm, y_norm)` normalized to [0, 1]
+- Hidden: Fully-connected layers with ReLU
+- Output: Single pixel value via Sigmoid → [0, 1]
+- Training: MSE loss, Adam optimizer, 5% sample rate
 
-## Common Patterns
-
-### Scene Files
-Scene files should define a `create_scene()` function returning a Scene object:
-
+**Critical Pattern**: `VideoDataset` normalizes coordinates by dividing by max values:
 ```python
-def create_scene() -> Scene:
-    return Scene(
-        spheres=[...],
-        camera=Camera(...)
-    )
+self.frames /= total_frames
+self.xs /= width
+self.ys /= height
+self.pixels /= 255.0  # Grayscale normalization
 ```
 
-### Adding New Geometry Primitives
-1. Inherit from `Node` base class
-2. Use `@dataclass` decorator
-3. Include center/position, dimensions, and material
-4. Update compiler templates to handle new primitive
+### 3. GLSL Generation (`src/shadertools/bin/generate_shaders.py`)
 
-### Shadertoy Uniforms
-The viewer automatically provides these uniforms if present in shaders:
-- `iResolution` (vec3): Window resolution
-- `iTime` (float): Elapsed time
-- `iTimeDelta` (float): Frame time
-- `iFrame` (int): Frame number
-- `iMouse` (vec4): Mouse position and click state
+**Jinja2 Templates** (`src/shadertools/templates/`):
+- `buffer_a.fs`: Embeds weights as `const float NN_WEIGHTS[N]`, packs 4 per RGBA pixel
+- `image.fs`: Reads weights via `texelFetch()`, implements NN forward pass
 
-## Best Practices
+**Weight Encoding**:
+1. Flatten all PyTorch parameters into single array
+2. Generate GLSL array literal: `float[4353](w1, w2, ...)`
+3. Pack into texture: 4 values per RGBA pixel
+4. Store denormalization: `weight * 0.5 + 0.5` → `pixel * 2.0 - 1.0`
 
-1. **Explicit over implicit**: Use clear variable names and explicit type hints
-2. **Consistent formatting**: Follow existing code style
-3. **Documentation first**: Write docstrings as you code, not after
-4. **Type safety**: Leverage type hints for better IDE support and error catching
-5. **Examples in docs**: Include usage examples in docstrings for complex APIs
-6. **Error messages**: Provide helpful assertion messages and error descriptions
+**NN Inference in GLSL**:
+- Loop-based matrix multiplication (no GLSL matrix helpers)
+- Manual ReLU: `max(0.0, x)`, Sigmoid: `1.0 / (1.0 + exp(-x))`
+- Reads weights sequentially using offset tracking
+
+## Console Scripts (Entry Points)
+
+Install with `uv sync` or `pip install -e .` to get:
+
+1. **`shadertools_extract_pixels`** → `src/shadertools/bin/extract_pixels.py`
+   - Default: `-i video.webm -o video_pixels.parquet`
+   
+2. **`shadertools_train_nn`** → `src/shadertools/bin/train_nn.py`
+   - Default: `-i video_pixels.parquet -o nn_weights.json`
+   - Outputs: `.json`, `.npz`, `_metadata.json`
+   
+3. **`shadertools_generate_shaders`** → `src/shadertools/bin/generate_shaders.py`
+   - Default: `-i nn_weights_tiny.npz`
+   - Outputs: `shadertoy_buffer_a.fs`, `shadertoy_image.fs`
+
+## Development Workflows
+
+### Full Pipeline (from `bad_apple/` directory)
+```bash
+cd bad_apple
+shadertools_extract_pixels  # 5-10 min
+shadertools_train_nn        # 1-2 hours CPU, 10-15 min GPU
+shadertools_generate_shaders nn_weights_tiny.npz  # instant
+```
+
+### Quick Testing (Reduce Training Time)
+In `train_nn.py`, modify architecture config:
+```python
+"sample_rate": 0.02,  # 2% instead of 5%
+"epochs": 10,         # 10 instead of 30
+```
+
+Or filter data for fewer frames:
+```python
+df = df.filter(pl.col("frame") < 100)  # First 100 frames only
+```
+
+### Debugging GLSL Output
+
+**Check buffer sizes**:
+```python
+# In generate_shaders.py
+total_weights = sum(p.size for p in weights_dict.values())
+tex_size = int(np.ceil(np.sqrt(total_weights / 4)))  # 4 weights per pixel
+```
+
+**Verify normalization match**: PyTorch training uses same ranges as GLSL inference:
+- Python: `frames /= total_frames` ↔ GLSL: `float(frame) / float(TOTAL_FRAMES)`
+- Python: `pixels /= 255.0` ↔ GLSL: `sigmoid()` output already in [0, 1]
+
+## Project Conventions
+
+1. **Polars over Pandas**: All DataFrame operations use Polars for speed
+2. **Type hints everywhere**: Python 3.13+ with modern type annotations
+3. **Console scripts in pyproject.toml**: All CLIs defined as `project.scripts`
+4. **Working directory matters**: Run from `bad_apple/` for default paths to work
+5. **Jinja2 for code generation**: Never manually write GLSL arrays
+6. **NumPy intermediate format**: `.npz` files bridge PyTorch ↔ GLSL
+
+## Common Pitfalls
+
+❌ **Don't** manually edit generated `.fs` files (regenerate from templates)  
+❌ **Don't** forget to connect Buffer A to iChannel0 in Shadertoy Image tab  
+❌ **Don't** exceed 65K chars (monitor with `len(buffer_a) + len(image_shader)`)  
+❌ **Don't** use different normalization in Python vs GLSL (causes black screens)  
+✅ **Do** run commands from `bad_apple/` directory (or specify full paths)  
+✅ **Do** check GPU availability: `torch.cuda.is_available()` (10x speedup)  
+✅ **Do** verify metadata file exists alongside `.npz` for shader generation  
+
+## Quick Reference
+
+| File | Purpose |
+|------|---------|
+| `src/shadertools/nn.py` | PyTorch model definition + training logic |
+| `src/shadertools/video.py` | OpenCV video → Polars DataFrame |
+| `src/shadertools/templates/*.fs` | Jinja2 templates for GLSL generation |
+| `bad_apple/video_pixels.parquet` | Extracted pixel data (generated) |
+| `bad_apple/nn_weights_tiny.npz` | Trained weights (generated) |
+| `bad_apple/shadertoy_*.fs` | Final GLSL shaders (generated) |
+
+## External Dependencies
+
+- **Shadertoy.com**: Final deployment target (multi-pass shader setup required)
+- **PyTorch**: Training infrastructure (GPU optional but recommended)
+- **opencv-python-headless**: Video I/O (headless = no GUI dependencies)
+- **Polars**: Fast DataFrame operations (replaces Pandas)
+- **Jinja2**: Template engine for GLSL code generation

@@ -1,6 +1,6 @@
 # ANTI-CAPITALIST SOFTWARE LICENSE (v 1.4)
 #
-# Copyright © 2025 Jonathan Tremesayques
+# Copyright © 2026 Jonathan Tremesayques
 #
 # This is anti-capitalist software, released for free use by individuals and
 # organizations that do not operate by capitalist principles.
@@ -32,15 +32,3 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""Command-line interface tools for ShaderTools.
-
-This package provides CLI utilities for working with ShaderTools:
-    - glslc: Compile scene files to GLSL shaders
-    - stc: Compile scene files to Shadertoy shaders
-    - viewer: View and interact with scene files in real-time
-
-Each tool can be invoked as a Python module:
-    python -m shadertools.bin.glslc scene.py
-    python -m shadertools.bin.stc scene.py
-    python -m shadertools.bin.viewer scene.py
-"""

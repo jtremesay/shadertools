@@ -9,12 +9,30 @@ wheels/
 # Virtual environments
 .venv
 
+# Videos and data files
+video.webm
+video_pixels.parquet
+nn_weights_*_metadata.json
+nn_weights_*.json
+nn_weights_*.npz
+shadertoy_buffer_a.fs
+shadertoy_image.fs
+
+# Marimo state
+*.marimo.py.state
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
 # Tests
 .coverage
 coverage.xml
 test-report.xml
-
-# Shaders
-output*.fs
-output*.vs
-output*.glsl

@@ -1,14 +1,26 @@
 [project]
 name = "shadertools"
 version = "0.1.0"
-description = "Add your description here"
+description = "Shader tools"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["jinja2>=3.1.6", "moderngl-window>=3.1.1"]
+dependencies = [
+    "opencv-python-headless>=4.13.0.92",
+    "polars>=1.38.1",
+    "tqdm>=4.67.3",
+    "torch>=2.5.0",
+    "numpy>=2.0.0",
+    "jinja2>=3.1.6",
+]
+
+[project.scripts]
+shadertools_extract_pixels = "shadertools.bin.extract_pixels:main"
+shadertools_train_nn = "shadertools.bin.train_nn:main"
+shadertools_generate_shaders = "shadertools.bin.generate_shaders:main"
 
 [dependency-groups]
 test = ["pytest>=9.0.1", "pytest-cov>=7.0.0", "pytest-xdist[psutil]>=3.8.0"]
 
 [build-system]
-requires = ["uv_build>=0.9.10,<0.10.0"]
+requires = ["uv_build>=0.10.2,<0.11.0"]
 build-backend = "uv_build"
